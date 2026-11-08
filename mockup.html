@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mockup – Dompet Diana MVP</title>
+  <style>
+    /* ─── Reset & Base ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #fdf0f5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 40px;
+      gap: 32px;
+    }
+
+    /* ─── Annotation ─── */
+    .page-title {
+      text-align: center;
+      color: #444;
+      font-size: 13px;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+    .page-title strong { color: #b8234f; }
+
+    .screens-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 32px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .screen-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .screen-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #888;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+    }
+
+    /* ─── Phone Frame ─── */
+    .phone {
+      width: 375px;
+      min-height: 812px;
+      background: #fff;
+      border-radius: 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.18), 0 0 0 8px #1a1a1a, 0 0 0 10px #333;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* notch */
+    .phone::before {
+      content: '';
+      display: block;
+      width: 120px;
+      height: 28px;
+      background: #1a1a1a;
+      border-radius: 0 0 18px 18px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* ─── Status Bar ─── */
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      background: #d6336c;
+      position: relative;
+      z-index: 9;
+    }
+
+    /* ─── App Content ─── */
+    .app {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #fff0f6;
+      overflow: hidden;
+    }
+
+    /* ─── Header ─── */
+    .header {
+      background: linear-gradient(135deg, #d6336c 0%, #e8699a 100%);
+      padding: 20px 20px 32px;
+      color: #fff;
+    }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .app-name {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+    .avatar {
+      width: 34px; height: 34px;
+      background: rgba(255,255,255,.25);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+    }
+    .month-nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      opacity: 1;
+    }
+    .month-nav span { font-weight: 600; }
+    .nav-btn {
+      background: rgba(255,255,255,.2);
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      width: 22px; height: 22px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ─── Summary Cards ─── */
+    .summary-cards {
+      display: flex;
+      gap: 10px;
+      padding: 0 16px;
+      margin-top: -24px;
+      position: relative;
+      z-index: 2;
+    }
+    .card {
+      flex: 1;
+      background: #fff;
+      border-radius: 14px;
+      padding: 12px 10px;
+      box-shadow: 0 4px 16px rgba(214,51,108,.12);
+      text-align: center;
+    }
+    .card-icon {
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+    .card-label {
+      font-size: 9px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      font-weight: 700;
+    }
+    .card-value {
+      font-size: 13px;
+      font-weight: 700;
+      margin-top: 2px;
+      color: #222;
+      white-space: nowrap;
+    }
+    .card.income .card-value  { color: #1aab6d; }
+    .card.expense .card-value { color: #e64c4c; }
+    .card.balance .card-value { color: #c41f5a; }
+    .card.balance { border: 1.5px solid #ffd6e7; }
+
+    /* ─── Section Header ─── */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 18px 8px;
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #333;
+    }
+    .see-all { font-size: 11px; color: #b8234f; font-weight: 600; }
+
+    /* ─── Transaction List ─── */
+    .tx-list {
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow-y: auto;
+      flex: 1;
+      padding-bottom: 90px;
+    }
+    .date-group-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #a06070;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      margin: 6px 0 2px 2px;
+    }
+    .tx-item {
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 1px 6px rgba(0,0,0,.05);
+      position: relative;
+    }
+    .tx-icon {
+      width: 38px; height: 38px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .tx-info { flex: 1; min-width: 0; }
+    .tx-category {
+      font-size: 13px;
+      font-weight: 600;
+      color: #222;
+    }
+    .tx-note {
+      font-size: 11px;
+      color: #888;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .tx-right { text-align: right; }
+    .tx-amount {
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .tx-amount.income  { color: #1aab6d; }
+    .tx-amount.expense { color: #e64c4c; }
+    .tx-time { font-size: 10px; color: #aaa; }
+
+    .tx-actions {
+      display: flex;
+      gap: 4px;
+      opacity: 0;
+      transition: opacity .15s;
+    }
+    .tx-item:hover .tx-actions { opacity: 1; }
+    .act-btn {
+      width: 26px; height: 26px;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .act-btn.edit   { background: #fce8f1; color: #b8234f; }
+    .act-btn.delete { background: #fff0f0; color: #e64c4c; }
+
+    /* ─── FAB ─── */
+    .fab {
+      position: absolute;
+      bottom: 24px;
+      right: 20px;
+      width: 58px; height: 58px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #d6336c, #e8699a);
+      box-shadow: 0 8px 24px rgba(214,51,108,.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      color: #fff;
+      font-weight: 300;
+      cursor: pointer;
+      z-index: 10;
+      border: none;
+    }
+    .fab-label {
+      position: absolute;
+      bottom: 84px;
+      right: 22px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #b8234f;
+      letter-spacing: .4px;
+      background: #fff;
+      padding: 3px 7px;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.12);
+    }
+
+    /* ─── Bottom Nav ─── */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0; right: 0;
+      height: 72px;
+      background: #fff;
+      border-top: 1px solid #ffd6e7;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 10px 12px;
+      box-shadow: 0 -4px 20px rgba(214,51,108,.06);
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      color: #999;
+      font-weight: 600;
+    }
+    .nav-item.active { color: #d6336c; }
+    .nav-item span:first-child { font-size: 20px; }
+    .nav-item:nth-child(3) { visibility: hidden; width: 58px; }
+
+    /* ═══════════════════════════════
+       SCREEN 2 – Add Transaction
+    ═══════════════════════════════ */
+    .add-screen .app {
+      background: #fff;
+    }
+    .add-header {
+      background: linear-gradient(135deg, #d6336c 0%, #e8699a 100%);
+      padding: 16px 20px 20px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .back-btn {
+      width: 32px; height: 32px;
+      background: rgba(255,255,255,.2);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .add-header-title { font-size: 17px; font-weight: 700; }
+
+    /* Type Toggle */
+    .type-toggle {
+      display: flex;
+      background: #fff0f6;
+      border-radius: 12px;
+      padding: 4px;
+      margin: 20px 20px 0;
+    }
+    .toggle-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 9px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      background: transparent;
+      color: #888;
+    }
+    .toggle-btn.active-expense {
+      background: #fff;
+      color: #e64c4c;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+    }
+    .toggle-btn.active-income {
+      background: #fff;
+      color: #1aab6d;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+    }
+
+    /* Amount Display */
+    .amount-display {
+      padding: 24px 20px 12px;
+      text-align: center;
+    }
+    .amount-label {
+      font-size: 11px;
+      color: #8a5568;
+      font-weight: 600;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+    .amount-value {
+      font-size: 38px;
+      font-weight: 700;
+      color: #333;
+      letter-spacing: -1px;
+      margin: 6px 0 0;
+    }
+    .amount-value .currency {
+      font-size: 22px;
+      color: #999;
+      vertical-align: super;
+      font-weight: 600;
+    }
+    .amount-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 36px;
+      background: #d6336c;
+      vertical-align: middle;
+      margin-left: 2px;
+      animation: blink 1s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* Form Fields */
+    .form-section {
+      padding: 8px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .form-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #8a5568;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+    .cat-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 4px;
+      border-radius: 10px;
+      border: 1.5px solid #f0a8c4;
+      background: #fff5f9;
+      cursor: pointer;
+      font-size: 10px;
+      color: #6b3a4f;
+      font-weight: 600;
+    }
+    .cat-btn span:first-child { font-size: 20px; }
+    .cat-btn.selected {
+      background: #d6336c;
+      border-color: #d6336c;
+      color: #fff;
+    }
+
+    .note-input {
+      width: 100%;
+      border: 1.5px solid #f0a8c4;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: #333;
+      background: #fff5f9;
+      outline: none;
+      font-family: inherit;
+    }
+    .note-input::placeholder { color: #bbb; }
+
+    .date-field {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff5f9;
+      border: 1.5px solid #f0a8c4;
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .date-field span:first-child { font-size: 16px; }
+    .date-field .date-text { font-size: 13px; color: #333; font-weight: 500; flex: 1; }
+    .date-field .date-hint { font-size: 10px; color: #aaa; }
+
+    .save-btn {
+      margin: 12px 20px 16px;
+      background: linear-gradient(135deg, #d6336c, #e8699a);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 15px;
+      font-weight: 700;
+      width: calc(100% - 40px);
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(214,51,108,.35);
+      letter-spacing: .3px;
+    }
+
+    /* ─── Keypad ─── */
+    .keypad {
+      background: #fef0f5;
+      border-top: 1px solid #f0a8c4;
+      padding: 8px 16px 8px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+    .key {
+      background: #fff;
+      border: 1px solid #f0a8c4;
+      border-radius: 10px;
+      padding: 14px 10px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      cursor: pointer;
+      text-align: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    .key.key-del { background: #fff0f0; color: #e64c4c; font-size: 15px; }
+    .key.key-dot { font-size: 22px; color: #999; }
+    .key.key-ok  { background: #d6336c; color: #fff; font-size: 15px; }
+
+    /* ─── Annotation Arrows ─── */
+    .annotations {
+      display: none; /* shown via print / overlay demo */
+    }
+
+    /* ─── Scrollbar hide ─── */
+    .tx-list::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+<body>
+
+  <p class="page-title">Mockup UI — <strong>Dompet Diana MVP</strong> &nbsp;·&nbsp; Mobile-First Web App</p>
+
+  <div class="screens-row">
+
+    <!-- ══════════════════════════════
+         SCREEN 1 : Dashboard
+    ══════════════════════════════ -->
+    <div class="screen-wrap">
+      <div class="screen-label">1 · Dashboard</div>
+      <div class="phone">
+
+        <div class="status-bar">
+          <span>9:41</span>
+          <span>●●● WiFi 🔋</span>
+        </div>
+
+        <div class="app">
+          <!-- Header -->
+          <div class="header">
+            <div class="header-top">
+              <div class="app-name">🤍 Dompet Diana</div>
+              <div class="avatar">👤</div>
+            </div>
+            <div class="month-nav">
+              <button class="nav-btn">‹</button>
+              <span>Oktober 2026</span>
+              <button class="nav-btn">›</button>
+            </div>
+          </div>
+
+          <!-- Summary Cards -->
+          <div class="summary-cards">
+            <div class="card income">
+              <div class="card-icon">⬆️</div>
+              <div class="card-label">Pemasukan</div>
+              <div class="card-value">Rp 4,5jt</div>
+            </div>
+            <div class="card balance">
+              <div class="card-icon">💰</div>
+              <div class="card-label">Saldo</div>
+              <div class="card-value">Rp 2,3jt</div>
+            </div>
+            <div class="card expense">
+              <div class="card-icon">⬇️</div>
+              <div class="card-label">Pengeluaran</div>
+              <div class="card-value">Rp 2,2jt</div>
+            </div>
+          </div>
+
+          <!-- Transaction List -->
+          <div class="section-header">
+            <div class="section-title">Transaksi Terbaru</div>
+            <div class="see-all">Lihat Semua</div>
+          </div>
+
+          <div class="tx-list">
+            <div class="date-group-label">Hari ini — 6 Okt</div>
+
+            <div class="tx-item">
+              <div class="tx-icon" style="background:#fff5e6">🍜</div>
+              <div class="tx-info">
+                <div class="tx-category">Makanan</div>
+                <div class="tx-note">Makan siang warteg</div>
+              </div>
+              <div class="tx-right">
+                <div class="tx-amount expense">−Rp 18.000</div>
+                <div class="tx-time">12:30</div>
+              </div>
+              <div class="tx-actions">
+                <button class="act-btn edit">✏️</button>
+                <button class="act-btn delete">🗑</button>
+              </div>
+            </div>
+
+            <div class="tx-item">
+              <div class="tx-icon" style="background:#e8f5e9">💳</div>
+              <div class="tx-info">
+                <div class="tx-category">Pemasukan</div>
+                <div class="tx-note">Transfer masuk klien</div>
+              </div>
+              <div class="tx-right">
+                <div class="tx-amount income">+Rp 500.000</div>
+                <div class="tx-time">09:15</div>
+              </div>
+              <div class="tx-actions">
+                <button class="act-btn edit">✏️</button>
+                <button class="act-btn delete">🗑</button>
+              </div>
+            </div>
+
+            <div class="date-group-label">Kemarin — 5 Okt</div>
+
+            <div class="tx-item">
+              <div class="tx-icon" style="background:#e8eeff">🚌</div>
+              <div class="tx-info">
+                <div class="tx-category">Transportasi</div>
+                <div class="tx-note">Ojek online ke kantor</div>
+              </div>
+              <div class="tx-right">
+                <div class="tx-amount expense">−Rp 23.000</div>
+                <div class="tx-time">08:05</div>
+              </div>
+              <div class="tx-actions">
+                <button class="act-btn edit">✏️</button>
+                <button class="act-btn delete">🗑</button>
+              </div>
+            </div>
+
+            <div class="tx-item">
+              <div class="tx-icon" style="background:#fce4ec">🛍️</div>
+              <div class="tx-info">
+                <div class="tx-category">Belanja</div>
+                <div class="tx-note">Minimarket</div>
+              </div>
+              <div class="tx-right">
+                <div class="tx-amount expense">−Rp 47.500</div>
+                <div class="tx-time">19:40</div>
+              </div>
+              <div class="tx-actions">
+                <button class="act-btn edit">✏️</button>
+                <button class="act-btn delete">🗑</button>
+              </div>
+            </div>
+
+            <div class="date-group-label">4 Okt</div>
+
+            <div class="tx-item">
+              <div class="tx-icon" style="background:#fff8e1">📱</div>
+              <div class="tx-info">
+                <div class="tx-category">Tagihan</div>
+                <div class="tx-note">Pulsa &amp; data internet</div>
+              </div>
+              <div class="tx-right">
+                <div class="tx-amount expense">−Rp 80.000</div>
+                <div class="tx-time">11:20</div>
+              </div>
+              <div class="tx-actions">
+                <button class="act-btn edit">✏️</button>
+                <button class="act-btn delete">🗑</button>
+              </div>
+            </div>
+          </div><!-- /tx-list -->
+
+          <!-- FAB -->
+          <div class="fab-label">Catat cepat</div>
+          <button class="fab">+</button>
+
+          <!-- Bottom Nav -->
+          <div class="bottom-nav">
+            <div class="nav-item active">
+              <span>🏠</span>
+              <span>Beranda</span>
+            </div>
+            <div class="nav-item">
+              <span>📋</span>
+              <span>Riwayat</span>
+            </div>
+            <div class="nav-item"></div><!-- FAB spacer -->
+            <div class="nav-item">
+              <span>📊</span>
+              <span>Laporan</span>
+            </div>
+            <div class="nav-item">
+              <span>⚙️</span>
+              <span>Setelan</span>
+            </div>
+          </div>
+        </div><!-- /app -->
+      </div><!-- /phone -->
+    </div><!-- /screen-wrap -->
+
+
+    <!-- ══════════════════════════════
+         SCREEN 2 : Tambah Transaksi
+    ══════════════════════════════ -->
+    <div class="screen-wrap">
+      <div class="screen-label">2 · Tambah Transaksi</div>
+      <div class="phone add-screen">
+
+        <div class="status-bar">
+          <span>9:41</span>
+          <span>●●● WiFi 🔋</span>
+        </div>
+
+        <div class="app" style="background:#fff; display:flex; flex-direction:column;">
+
+          <!-- Header -->
+          <div class="add-header">
+            <div class="back-btn">←</div>
+            <div class="add-header-title">Catat Transaksi</div>
+          </div>
+
+          <!-- Type Toggle -->
+          <div class="type-toggle">
+            <button class="toggle-btn active-expense">⬇️ Pengeluaran</button>
+            <button class="toggle-btn">⬆️ Pemasukan</button>
+          </div>
+
+          <!-- Amount Display -->
+          <div class="amount-display">
+            <div class="amount-label">Nominal</div>
+            <div class="amount-value">
+              <span class="currency">Rp</span> 18.000<span class="amount-cursor"></span>
+            </div>
+          </div>
+
+          <!-- Form -->
+          <div class="form-section" style="flex:1; overflow-y:auto; padding-bottom: 4px;">
+
+            <!-- Category -->
+            <div>
+              <div class="form-label">Kategori</div>
+              <div class="category-grid">
+                <button class="cat-btn selected"><span>🍜</span><span>Makanan</span></button>
+                <button class="cat-btn"><span>🚌</span><span>Trans.</span></button>
+                <button class="cat-btn"><span>🛍️</span><span>Belanja</span></button>
+                <button class="cat-btn"><span>📱</span><span>Tagihan</span></button>
+                <button class="cat-btn"><span>🏥</span><span>Kesehatan</span></button>
+                <button class="cat-btn"><span>💄</span><span>Kecantikan</span></button>
+                <button class="cat-btn"><span>🎬</span><span>Hiburan</span></button>
+                <button class="cat-btn"><span>🏠</span><span>Tmp. Tinggal</span></button>
+                <button class="cat-btn"><span>✈️</span><span>Liburan</span></button>
+                <button class="cat-btn"><span>🏦</span><span>Biaya Admin</span></button>
+                <button class="cat-btn"><span>🧃</span><span>Jajan</span></button>
+                <button class="cat-btn"><span>📦</span><span>Lainnya</span></button>
+              </div>
+            </div>
+
+            <!-- Note -->
+            <div>
+              <div class="form-label">Catatan <span style="color:#ddd;font-size:10px;font-weight:400">(opsional)</span></div>
+              <input class="note-input" placeholder="Contoh: makan siang warteg..." value="Makan siang warteg" />
+            </div>
+
+            <!-- Date -->
+            <div>
+              <div class="form-label">Tanggal</div>
+              <div class="date-field">
+                <span>📅</span>
+                <span class="date-text">Selasa, 6 Oktober 2026</span>
+                <span class="date-hint">Hari ini ▾</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Save Button -->
+          <button class="save-btn">✓ &nbsp; Simpan Transaksi</button>
+
+          <!-- Keypad -->
+          <div class="keypad">
+            <button class="key">7</button>
+            <button class="key">8</button>
+            <button class="key">9</button>
+            <button class="key">4</button>
+            <button class="key">5</button>
+            <button class="key">6</button>
+            <button class="key">1</button>
+            <button class="key">2</button>
+            <button class="key">3</button>
+            <button class="key key-dot">.</button>
+            <button class="key">0</button>
+            <button class="key key-del">⌫</button>
+          </div>
+
+        </div>
+      </div><!-- /phone -->
+    </div><!-- /screen-wrap -->
+
+
+    <!-- ══════════════════════════════
+         SCREEN 3 : Edit / Hapus
+    ══════════════════════════════ -->
+    <div class="screen-wrap">
+      <div class="screen-label">3 · Edit &amp; Hapus (State Hover)</div>
+      <div class="phone">
+        <div class="status-bar">
+          <span>9:41</span>
+          <span>●●● WiFi 🔋</span>
+        </div>
+        <div class="app">
+          <div class="header">
+            <div class="header-top">
+              <div class="app-name">🤍 Dompet Diana</div>
+              <div class="avatar">👤</div>
+            </div>
+            <div class="month-nav">
+              <button class="nav-btn">‹</button>
+              <span>Oktober 2026</span>
+              <button class="nav-btn">›</button>
+            </div>
+          </div>
+          <div class="summary-cards">
+            <div class="card income">
+              <div class="card-icon">⬆️</div>
+              <div class="card-label">Pemasukan</div>
+              <div class="card-value">Rp 4,5jt</div>
+            </div>
+            <div class="card balance">
+              <div class="card-icon">💰</div>
+              <div class="card-label">Saldo</div>
+              <div class="card-value">Rp 2,3jt</div>
+            </div>
+            <div class="card expense">
+              <div class="card-icon">⬇️</div>
+              <div class="card-label">Pengeluaran</div>
+              <div class="card-value">Rp 2,2jt</div>
+            </div>
+          </div>
+
+          <div class="section-header">
+            <div class="section-title">Transaksi Terbaru</div>
+            <div class="see-all">Lihat Semua</div>
+          </div>
+
+          <div class="tx-list" style="padding-bottom:90px">
+            <div class="date-group-label">Hari ini — 6 Okt</div>
+
+            <!-- Highlighted item (being acted on) -->
+            <div class="tx-item" style="border: 2px solid #e64c4c; background:#fff5f5;">
+              <div class="tx-icon" style="background:#fff5e6">🍜</div>
+              <div class="tx-info">
+                <div class="tx-category">Makanan</div>
+                <div class="tx-note">Makan siang warteg</div>
+              </div>
+              <div class="tx-right">
+                <div class="tx-amount expense">−Rp 18.000</div>
+                <div class="tx-time">12:30</div>
+              </div>
+              <div class="tx-actions" style="opacity:1">
+                <button class="act-btn edit">✏️</button>
+                <button class="act-btn delete">🗑</button>
+              </div>
+            </div>
+
+            <!-- Confirm delete dialog inline -->
+            <div style="background:#fff0f0; border: 1.5px solid #e64c4c; border-radius:12px; padding:14px 16px; margin-top:-4px;">
+              <div style="font-size:13px; font-weight:700; color:#e64c4c; margin-bottom:6px;">🗑 Hapus transaksi ini?</div>
+              <div style="font-size:11px; color:#888; margin-bottom:12px;">Makan siang warteg · Rp 18.000</div>
+              <div style="display:flex; gap:8px;">
+                <button style="flex:1; background:#f0f0f0; border:none; border-radius:8px; padding:9px; font-size:12px; font-weight:600; color:#666; cursor:pointer;">Batal</button>
+                <button style="flex:1; background:#e64c4c; border:none; border-radius:8px; padding:9px; font-size:12px; font-weight:700; color:#fff; cursor:pointer;">Ya, Hapus</button>
+              </div>
+            </div>
+
+            <div class="tx-item">
+              <div class="tx-icon" style="background:#e8f5e9">💳</div>
+              <div class="tx-info">
+                <div class="tx-category">Pemasukan</div>
+                <div class="tx-note">Transfer masuk klien</div>
+              </div>
+              <div class="tx-right">
+                <div class="tx-amount income">+Rp 500.000</div>
+                <div class="tx-time">09:15</div>
+              </div>
+              <div class="tx-actions">
+                <button class="act-btn edit">✏️</button>
+                <button class="act-btn delete">🗑</button>
+              </div>
+            </div>
+
+            <div class="date-group-label">Kemarin — 5 Okt</div>
+
+            <div class="tx-item">
+              <div class="tx-icon" style="background:#e8eeff">🚌</div>
+              <div class="tx-info">
+                <div class="tx-category">Transportasi</div>
+                <div class="tx-note">Ojek online ke kantor</div>
+              </div>
+              <div class="tx-right">
+                <div class="tx-amount expense">−Rp 23.000</div>
+                <div class="tx-time">08:05</div>
+              </div>
+              <div class="tx-actions">
+                <button class="act-btn edit">✏️</button>
+                <button class="act-btn delete">🗑</button>
+              </div>
+            </div>
+          </div>
+
+          <button class="fab">+</button>
+
+          <div class="bottom-nav">
+            <div class="nav-item active"><span>🏠</span><span>Beranda</span></div>
+            <div class="nav-item"><span>📋</span><span>Riwayat</span></div>
+            <div class="nav-item"></div>
+            <div class="nav-item"><span>📊</span><span>Laporan</span></div>
+            <div class="nav-item"><span>⚙️</span><span>Setelan</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /screens-row -->
+
+  <!-- ─── Legend ─── -->
+  <div style="max-width:900px; background:#fff; border-radius:16px; padding:24px 28px; box-shadow:0 2px 12px rgba(0,0,0,.06);">
+    <h2 style="font-size:14px; color:#d6336c; margin-bottom:14px; letter-spacing:.4px; text-transform:uppercase; font-weight:700;">Keterangan Layar</h2>
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; font-size:12px; color:#555; line-height:1.6;">
+      <div>
+        <strong style="color:#222; display:block; margin-bottom:4px;">Layar 1 — Dashboard</strong>
+        Header bulan, 3 kartu ringkasan (Pemasukan / Saldo / Pengeluaran), daftar transaksi berkelompok per hari, tombol FAB (+) untuk catat cepat.
+      </div>
+      <div>
+        <strong style="color:#222; display:block; margin-bottom:4px;">Layar 2 — Tambah Transaksi</strong>
+        Toggle Pengeluaran/Pemasukan, display nominal, pilih kategori (5 ikon), kolom catatan opsional, tanggal (default hari ini), keypad angka native-style, tombol Simpan.
+      </div>
+      <div>
+        <strong style="color:#222; display:block; margin-bottom:4px;">Layar 3 — Hapus Transaksi</strong>
+        State saat tombol hapus ditekan: item di-highlight merah + konfirmasi inline (Batal / Ya, Hapus) sebelum data dihapus.
+      </div>
+    </div>
+  </div>
+
+  <!-- User Flow -->
+  <div style="max-width:900px; width:100%; background:#fff0f6; border-radius:16px; padding:20px 28px; border: 1.5px solid #ffe0ee;">
+    <h2 style="font-size:13px; color:#d6336c; margin-bottom:10px; letter-spacing:.4px; text-transform:uppercase; font-weight:700;">User Flow (MVP)</h2>
+    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px; font-weight:600; color:#444;">
+      <span style="background:#d6336c; color:#fff; padding:6px 12px; border-radius:8px;">Buka Web</span>
+      <span style="color:#aaa">→</span>
+      <span style="background:#fff; border:1.5px solid #ffb3d0; padding:6px 12px; border-radius:8px;">Lihat Dashboard</span>
+      <span style="color:#aaa">→</span>
+      <span style="background:#fff; border:1.5px solid #ffb3d0; padding:6px 12px; border-radius:8px;">Tekan "+"</span>
+      <span style="color:#aaa">→</span>
+      <span style="background:#fff; border:1.5px solid #ffb3d0; padding:6px 12px; border-radius:8px;">Isi Nominal &amp; Kategori</span>
+      <span style="color:#aaa">→</span>
+      <span style="background:#1aab6d; color:#fff; padding:6px 12px; border-radius:8px;">Simpan ✓</span>
+      <span style="color:#aaa">→</span>
+      <span style="background:#d6336c; color:#fff; padding:6px 12px; border-radius:8px;">Kembali ke Dashboard</span>
+    </div>
+    <div style="margin-top:10px; font-size:11px; color:#b8234f; font-weight:600;">Target: selesai dalam &lt; 5 detik &nbsp;·&nbsp; No horizontal scroll &nbsp;·&nbsp; Tombol ramah ibu jari</div>
+  </div>
+
+</body>
+</html>

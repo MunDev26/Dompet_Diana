@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #fdf0f5;
+  overscroll-behavior: none;
+}
+
+#root {
+  display: flex;
+  justify-content: center;
+  min-height: 100dvh;
+  background: #fdf0f5;
+}
+
+.app-shell {
+  width: 100%;
+  max-width: 430px;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #fff0f6;
+  box-shadow: 0 0 60px rgba(214, 51, 108, 0.08);
+  position: relative;
+}
+
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scroll-area::-webkit-scrollbar { display: none; }
+
+/* FAB floats above bottom bar */
+.bottom-bar {
+  flex-shrink: 0;
+  height: 72px;
+  position: relative;
+  z-index: 5;
+}
+
+.fab-wrap {
+  position: absolute;
+  bottom: 80px;
+  right: 20px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.amount-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 0.85em;
+  background: #d6336c;
+  vertical-align: text-bottom;
+  margin-left: 2px;
+  animation: cursor-blink 1s infinite;
+}
+
+* { -webkit-tap-highlight-color: transparent; }
