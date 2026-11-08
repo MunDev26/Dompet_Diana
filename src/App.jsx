@@ -2,59 +2,61 @@ import { useState, useEffect } from 'react'
 import Dashboard from './Dashboard'
 import AddTransaction from './AddTransaction'
 import { uid, todayStr } from './utils'
+import { fetchTransactions, insertTransaction, updateTransaction, deleteTransaction } from './db'
 
-const KEY = 'dompet_diana_v1'
-
-function sampleData() {
-  const t  = todayStr()
-  const y  = new Date(Date.now() - 86_400_000).toISOString().split('T')[0]
-  const d2 = new Date(Date.now() - 2 * 86_400_000).toISOString().split('T')[0]
-  const now = new Date().toISOString()
-  return [
-    { id: uid(), type: 'income',  amount: 500_000, categoryId: 'lainnya',        note: 'Transfer masuk klien',   date: t,  createdAt: now },
-    { id: uid(), type: 'expense', amount: 18_000,  categoryId: 'makanan',        note: 'Makan siang warteg',     date: t,  createdAt: now },
-    { id: uid(), type: 'expense', amount: 23_000,  categoryId: 'transportasi',   note: 'Ojek online ke kos',     date: y,  createdAt: now },
-    { id: uid(), type: 'expense', amount: 47_500,  categoryId: 'belanja',        note: 'Minimarket',             date: y,  createdAt: now },
-    { id: uid(), type: 'expense', amount: 80_000,  categoryId: 'tagihan',        note: 'Pulsa & data internet',  date: d2, createdAt: now },
-    { id: uid(), type: 'expense', amount: 15_000,  categoryId: 'biaya-admin',    note: 'Biaya transfer bank',    date: d2, createdAt: now },
-  ]
-}
+const P = '#d6336c'
 
 export default function App() {
-  const [txs, setTxs] = useState(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem(KEY))
-      return saved?.length ? saved : sampleData()
-    } catch {
-      return sampleData()
-    }
-  })
-
-  const [view,   setView]   = useState('dashboard')
-  const [editId, setEditId] = useState(null)
-  const [delId,  setDelId]  = useState(null)
-  const [month,  setMonth]  = useState(() => {
+  const [txs,     setTxs]     = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error,   setError]   = useState(null)
+  const [view,    setView]    = useState('dashboard')
+  const [editId,  setEditId]  = useState(null)
+  const [delId,   setDelId]   = useState(null)
+  const [month,   setMonth]   = useState(() => {
     const d = new Date()
     return { y: d.getFullYear(), m: d.getMonth() }
   })
 
   useEffect(() => {
-    localStorage.setItem(KEY, JSON.stringify(txs))
-  }, [txs])
+    fetchTransactions()
+      .then(setTxs)
+      .catch(err => setError(err.message))
+      .finally(() => setLoading(false))
+  }, [])
 
-  function add(data) {
-    setTxs(p => [{ ...data, id: uid(), createdAt: new Date().toISOString() }, ...p])
+  async function add(data) {
+    const tx = { ...data, id: uid(), createdAt: new Date().toISOString() }
+    try {
+      const saved = await insertTransaction(tx)
+      setTxs(p => [saved, ...p])
+    } catch (err) {
+      alert('Gagal menyimpan: ' + err.message)
+      return
+    }
     setView('dashboard')
   }
 
-  function update(id, data) {
-    setTxs(p => p.map(t => t.id === id ? { ...t, ...data } : t))
+  async function update(id, data) {
+    try {
+      const saved = await updateTransaction(id, data)
+      setTxs(p => p.map(t => t.id === id ? saved : t))
+    } catch (err) {
+      alert('Gagal memperbarui: ' + err.message)
+      return
+    }
     setEditId(null)
     setView('dashboard')
   }
 
-  function del(id) {
-    setTxs(p => p.filter(t => t.id !== id))
+  async function del(id) {
+    try {
+      await deleteTransaction(id)
+      setTxs(p => p.filter(t => t.id !== id))
+    } catch (err) {
+      alert('Gagal menghapus: ' + err.message)
+      return
+    }
     setDelId(null)
   }
 
@@ -72,6 +74,35 @@ export default function App() {
     },
     { income: 0, expense: 0, balance: 0 },
   )
+
+  if (loading) {
+    return (
+      <div className="app-shell" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff' }}>
+        <div style={{ textAlign: 'center', color: '#8a5568' }}>
+          <div style={{ fontSize: 32, marginBottom: 12 }}>💸</div>
+          <div style={{ fontSize: 14, fontWeight: 600 }}>Memuat data...</div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="app-shell" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', padding: 24 }}>
+        <div style={{ textAlign: 'center', color: '#e64c4c' }}>
+          <div style={{ fontSize: 32, marginBottom: 12 }}>⚠️</div>
+          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 8 }}>Gagal terhubung ke database</div>
+          <div style={{ fontSize: 12, color: '#888', marginBottom: 20 }}>{error}</div>
+          <button
+            onClick={() => { setError(null); setLoading(true); fetchTransactions().then(setTxs).catch(e => setError(e.message)).finally(() => setLoading(false)) }}
+            style={{ background: `linear-gradient(135deg, ${P}, #e8699a)`, color: '#fff', border: 'none', borderRadius: 10, padding: '10px 24px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+          >
+            Coba Lagi
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   if (view === 'add') {
     return <AddTransaction onBack={() => setView('dashboard')} onSave={add} />
